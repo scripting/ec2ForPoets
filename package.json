@@ -1,0 +1,17 @@
+{ 
+	"name": "s3sync",
+	"description": "Let's just say it's a utility and leave it at that, for now.",
+	"author": "Dave Winer <dave@smallpicture.com>",
+	"version": "0.40.0",
+	"scripts": {
+		"start": "node storage.js"
+		},
+	"dependencies" : {
+		"aws-sdk": "*", 
+		"request": "*"
+		}, 
+	"license": "MIT",
+	"engines": { 
+		"node": "0.10.*"
+		}
+	}
