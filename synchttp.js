@@ -1,9 +1,65 @@
-var baseUrl = "http://fargo.io/code/ec2forpoets/", basefolder = "syncfiles/";
+var myVersion = "0.40b", myProductName = "syncHttp"; 
+
+var basefolder = "syncfiles/";
+var baseUrl = "http://demo.forpoets.org/distribution/";
+
+var stats = {
+	ctStarts: 0, whenLastStart: new Date (0),
+	ctChecks: 0, whenLastCheck: new Date (0),
+	ctDownloads: 0, whenLastDownload: new Date (0)
+	}
+var statsfilename = "stats.json";
 
 var request = require ("request");
 var fs = require ("fs");
 var utils = require ("./lib/utils.js");
 
+function writeStats (f, stats, callback) {
+	fsSureFilePath (f, function () {
+		fs.writeFile (f, utils.jsonStringify (stats), function (err) {
+			if (err != null) {
+				console.log ("writeStats: error == " + err.message);
+				}
+			if (callback != undefined) {
+				callback ();
+				}
+			});
+		});
+	}
+function readStats (f, stats, callback) {
+	fsSureFilePath (f, function () {
+		fs.exists (f, function (flExists) {
+			if (flExists) {
+				fs.readFile (f, function (err, data) {
+					if (err != null) {
+						console.log ("readStats: error reading file " + f + " == " + err.message)
+						if (callback != undefined) {
+							callback ();
+							}
+						}
+					else {
+						var storedStats = JSON.parse (data.toString ());
+						for (var x in storedStats) {
+							stats [x] = storedStats [x];
+							}
+						writeStats (f, stats, function () {
+							if (callback != undefined) {
+								callback ();
+								}
+							});
+						}
+					});
+				}
+			else {
+				writeStats (f, stats, function () {
+					if (callback != undefined) {
+						callback ();
+						}
+					});
+				}
+			});
+		});
+	}
 function fsSureFilePath (path, callback) { 
 	var splits = path.split ("/");
 	path = ""; //1/8/15 by DW
@@ -51,10 +107,13 @@ function getFileList (s3path, callback) {
 	}
 function downloadFile (relpath, f, whenModified, callback) {
 	console.log ("downloadFile: relpath == " + relpath);
+	stats.ctDownloads++;
+	stats.whenLastDownload = new Date ();
+	writeStats (statsfilename, stats);
 	request (baseUrl + relpath, function (err, response, filetext) {
 		if (!err && response.statusCode == 200) {
 			fs.writeFile (f, filetext, function (err) {
-				if (err) {
+				if (err != null) {
 					console.log ("downloadFile: error writing local file == " + err.message);
 					}
 				else {
@@ -66,16 +125,18 @@ function downloadFile (relpath, f, whenModified, callback) {
 				}); 
 			}
 		else {
-			console.log ("downloadFile: error reading file == " + err.message);
+			if (err != null) {
+				console.log ("downloadFile: error reading file == " + err.message);
+				}
 			callback ();
 			}
 		});
-	
-	
 	}
 function checkForUpdates (baseUrl, callback) {
-	request (baseUrl + "index.json", function (error, response, jsontext) {
-		if (!error && response.statusCode == 200) {
+	var urlIndex = baseUrl + "index.json";
+	console.log ("checkForUpdates: urlIndex == " + urlIndex);
+	request (urlIndex, function (err, response, jsontext) {
+		if (!err && response.statusCode == 200) {
 			var theList = JSON.parse (jsontext);
 			function considerFile (ixfile) {
 				if (ixfile < theList.length) {
@@ -108,16 +169,33 @@ function checkForUpdates (baseUrl, callback) {
 					callback ();
 					}
 				}
+			console.log ("checkForUpdates: " + theList.length + " files in the list.");
 			considerFile (0);
 			}
 		});
 	}
 function everyMinute () {
-	var whenstart = new Date ();
-	checkForUpdates (baseUrl, function () {
-		console.log ("\neveryMinute: took " + utils.secondsSince (whenstart) + " secs.");
+	readStats (statsfilename, stats, function () {
+		var whenstart = new Date ();
+		
+		stats.ctChecks++;
+		stats.whenLastCheck = whenstart;
+		writeStats (statsfilename, stats);
+		
+		checkForUpdates (baseUrl, function () {
+			console.log ("\neveryMinute: took " + utils.secondsSince (whenstart) + " secs.");
+			});
+		});
+	}
+function startup () {
+	readStats (statsfilename, stats, function () {
+		stats.ctStarts++;
+		stats.whenLastStart = new Date ();
+		writeStats (statsfilename, stats);
+		console.log ("\n" + myProductName + " v" + myVersion + "\n");
+		everyMinute ();
+		setInterval (everyMinute, 60000); 
 		});
 	}
 
-everyMinute ();
-setInterval (everyMinute, 60000); 
+startup ();
