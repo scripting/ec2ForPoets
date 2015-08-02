@@ -1,10 +1,10 @@
 { 
-	"name": "s3sync",
+	"name": "synchttp",
 	"description": "Let's just say it's a utility and leave it at that, for now.",
 	"author": "Dave Winer <dave@smallpicture.com>",
-	"version": "0.40.0",
+	"version": "0.41.0",
 	"scripts": {
-		"start": "node storage.js"
+		"start": "node server.js"
 		},
 	"dependencies" : {
 		"request": "*"
