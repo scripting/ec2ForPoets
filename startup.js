@@ -22,4 +22,4 @@ function runCommands (s) {
 	doCommand (0);
 	
 	}
-runCommands ("cd /home/ubuntu/ec2ForPoets/river4\nforever start river4\n");
+runCommands ("cd /home/ubuntu/ec2ForPoets/synchttp\nforever start sync.js\n");

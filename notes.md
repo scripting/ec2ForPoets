@@ -32,3 +32,11 @@ cd /volumes/baltimore/ec2forpoets/distribution
 
 aws s3 sync . s3://demo.forpoets.org/distribution
 
+Folder structure
+
+/home/ubuntu
+
+ec2ForPoets -- the folder defined by the repo
+
+river4 -- must be outside of ec2ForPoets, because we keep deleting that folder
+
