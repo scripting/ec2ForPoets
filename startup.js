@@ -23,4 +23,4 @@ function runCommands (s, cwd) {
 	doCommand (0);
 	
 	}
-runCommands ("pwd\nforever start sync.js\n", {cwd: "/home/ubuntu/ec2ForPoets/synchttp"});
+runCommands ("pwd\nforever start sync.js&\n", {cwd: "/home/ubuntu/ec2ForPoets/synchttp"});

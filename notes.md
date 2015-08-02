@@ -8,6 +8,8 @@ rm -rf ec2ForPoets
 
 git clone https://github.com/scripting/ec2ForPoets.git
 
+cd /home/ubuntu/ec2ForPoets
+
 cd ec2ForPoets/synchttp
 
 pwd
