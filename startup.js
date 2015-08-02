@@ -9,12 +9,13 @@ function runUnixCommand (theCommand, callback) {
 			});
 		}
 	}
-function runCommands (s) {
+function runCommands (s, cwd) {
 	var theList = s.split ("\n");
 	
 	function doCommand (ix) {
 		if (ix < theList.length) {
 			runUnixCommand (theList [ix], function (error, stdout, stderr) {
+				console.log (stdout);
 				doCommand (ix + 1);
 				});
 			}
@@ -22,4 +23,4 @@ function runCommands (s) {
 	doCommand (0);
 	
 	}
-runCommands ("cd /home/ubuntu/ec2ForPoets/synchttp\nforever start sync.js\n");
+runCommands ("pwd\nforever start sync.js\n", {cwd: "/home/ubuntu/ec2ForPoets/synchttp"});
