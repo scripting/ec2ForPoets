@@ -1,4 +1,4 @@
-var myVersion = "0.42a", myProductName = "syncHttp"; 
+var myVersion = "0.43a", myProductName = "syncHttp"; 
 
 var basefolder = "/home/ubuntu/"; //on the target machine, all folders are siblings of the ec2ForPoets folder
 var baseUrl = "http://demo.forpoets.org/distribution/";
@@ -106,7 +106,7 @@ function getFileList (s3path, callback) {
 		});
 	}
 function downloadFile (relpath, f, whenModified, callback) {
-	console.log ("downloadFile: relpath == " + relpath);
+	console.log ("downloadFile: " + relpath);
 	stats.ctDownloads++;
 	stats.whenLastDownload = new Date ();
 	writeStats (statsfilename, stats);
@@ -134,7 +134,7 @@ function downloadFile (relpath, f, whenModified, callback) {
 	}
 function checkForUpdates (baseUrl, callback) {
 	var urlIndex = baseUrl + "index.json";
-	console.log ("checkForUpdates: urlIndex == " + urlIndex);
+	console.log ("checkForUpdates: " + urlIndex);
 	request (urlIndex, function (err, response, jsontext) {
 		if (!err && response.statusCode == 200) {
 			var theList = JSON.parse (jsontext);
@@ -174,6 +174,9 @@ function checkForUpdates (baseUrl, callback) {
 			}
 		});
 	}
+function productNameVersion () {
+	return ("\n" + myProductName + " v" + myVersion + "\n");
+	}
 function everyMinute () {
 	readStats (statsfilename, stats, function () {
 		var whenstart = new Date ();
@@ -183,7 +186,7 @@ function everyMinute () {
 		writeStats (statsfilename, stats);
 		
 		checkForUpdates (baseUrl, function () {
-			console.log ("\neveryMinute: took " + utils.secondsSince (whenstart) + " secs.");
+			console.log ("\n" + productNameVersion () +  " + whenstart.toLocaleTimeString () + ": took " + utils.secondsSince (whenstart) + " secs.");
 			});
 		});
 	}
@@ -192,7 +195,7 @@ function startup () {
 		stats.ctStarts++;
 		stats.whenLastStart = new Date ();
 		writeStats (statsfilename, stats);
-		console.log ("\n" + myProductName + " v" + myVersion + "\n");
+		console.log ("\n" + productNameVersion () + "\n");
 		everyMinute ();
 		setInterval (everyMinute, 60000); 
 		});
