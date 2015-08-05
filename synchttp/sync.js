@@ -181,7 +181,7 @@ function everyMinute () {
 	console.log (new Date ().toLocaleTimeString () + " " + productNameVersion ());
 	readStats (statsfilename, stats, function () {
 		stats.ctChecks++;
-		stats.whenLastCheck = whenstart;
+		stats.whenLastCheck = new Date ();
 		writeStats (statsfilename, stats);
 		checkForUpdates (baseUrl, function () {
 			});
