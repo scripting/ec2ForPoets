@@ -186,7 +186,7 @@ function everyMinute () {
 		writeStats (statsfilename, stats);
 		
 		checkForUpdates (baseUrl, function () {
-			console.log ("\n" + productNameVersion () +  " + whenstart.toLocaleTimeString () + ": took " + utils.secondsSince (whenstart) + " secs.");
+			console.log ("\n" + productNameVersion () +  " " + whenstart.toLocaleTimeString () + ": took " + utils.secondsSince (whenstart) + " secs.");
 			});
 		});
 	}
