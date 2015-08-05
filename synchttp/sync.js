@@ -175,7 +175,7 @@ function checkForUpdates (baseUrl, callback) {
 		});
 	}
 function productNameVersion () {
-	return ("\n" + myProductName + " v" + myVersion + "\n");
+	return ("\n" + myProductName + " v" + myVersion);
 	}
 function everyMinute () {
 	readStats (statsfilename, stats, function () {
