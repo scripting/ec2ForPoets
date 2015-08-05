@@ -175,10 +175,10 @@ function checkForUpdates (baseUrl, callback) {
 		});
 	}
 function productNameVersion () {
-	return ("\n" + myProductName + " v" + myVersion);
+	return (myProductName + " v" + myVersion);
 	}
 function everyMinute () {
-	console.log (new Date ().toLocaleTimeString () + " " + productNameVersion ());
+	console.log (productNameVersion () + ": " + new Date ().toLocaleTimeString () + "\n");
 	readStats (statsfilename, stats, function () {
 		stats.ctChecks++;
 		stats.whenLastCheck = new Date ();
