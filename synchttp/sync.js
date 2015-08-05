@@ -178,6 +178,7 @@ function productNameVersion () {
 	return ("\n" + myProductName + " v" + myVersion);
 	}
 function everyMinute () {
+	console.log (whenstart.toLocaleTimeString () + " " + productNameVersion ());
 	readStats (statsfilename, stats, function () {
 		var whenstart = new Date ();
 		
@@ -186,7 +187,6 @@ function everyMinute () {
 		writeStats (statsfilename, stats);
 		
 		checkForUpdates (baseUrl, function () {
-			console.log ("\n" + productNameVersion () +  " " + whenstart.toLocaleTimeString () + ": took " + utils.secondsSince (whenstart) + " secs.");
 			});
 		});
 	}
