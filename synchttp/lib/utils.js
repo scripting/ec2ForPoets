@@ -835,7 +835,7 @@ function sleepTillTopOfMinute (callback) { //11/22/14 by DW
 	if (ctseconds == 0) {
 		ctseconds = 60;
 		}
-	setTimeout (everyMinute, ctseconds * 1000); 
+	setTimeout (callback, ctseconds * 1000); //8/13/15 by DW -- was hard-coded to "everyMinute" ignored the callback param, fixed
 	}
 function scheduleNextRun (callback, ctMillisecsBetwRuns) { //11/27/14 by DW
 	var ctmilliseconds = ctMillisecsBetwRuns - (Number (new Date ().getMilliseconds ()) + ctMillisecsBetwRuns) % ctMillisecsBetwRuns;
