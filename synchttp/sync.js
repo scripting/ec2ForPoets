@@ -1,4 +1,4 @@
-var myVersion = "0.44a", myProductName = "syncHttp"; 
+var myVersion = "0.45a", myProductName = "syncHttp"; 
 
 var basefolder = "/home/ubuntu/"; //on the target machine, all folders are siblings of the ec2ForPoets folder
 var baseUrl = "http://demo.forpoets.org/distribution/";
