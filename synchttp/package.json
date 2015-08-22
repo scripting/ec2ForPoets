@@ -1,8 +1,8 @@
 { 
 	"name": "synchttp",
-	"description": "Let's just say it's a utility and leave it at that, for now.",
+	"description": "Downloads latest versions of code and data for components of ec2ForPoets.",
 	"author": "Dave Winer <dave@smallpicture.com>",
-	"version": "0.41.0",
+	"version": "0.46.0",
 	"scripts": {
 		"start": "node sync.js"
 		},

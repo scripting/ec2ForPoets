@@ -1,4 +1,4 @@
-var myVersion = "0.45a", myProductName = "syncHttp"; 
+var myVersion = "0.46e", myProductName = "syncHttp"; 
 
 var basefolder = "/home/ubuntu/"; //on the target machine, all folders are siblings of the ec2ForPoets folder
 var baseUrl = "http://demo.forpoets.org/distribution/";
@@ -9,6 +9,8 @@ var stats = {
 	ctDownloads: 0, whenLastDownload: new Date (0)
 	}
 var statsfilename = "stats.json";
+var flScheduledEveryMinute = false; //8/22/15 by DW
+var origAppModDate, fnameApp = "sync.js";
 
 var request = require ("request");
 var fs = require ("fs");
@@ -134,7 +136,6 @@ function downloadFile (relpath, f, whenModified, callback) {
 	}
 function checkForUpdates (baseUrl, callback) {
 	var urlIndex = baseUrl + "index.json";
-	console.log ("checkForUpdates: " + urlIndex);
 	request (urlIndex, function (err, response, jsontext) {
 		if (!err && response.statusCode == 200) {
 			var theList = JSON.parse (jsontext);
@@ -169,7 +170,7 @@ function checkForUpdates (baseUrl, callback) {
 					callback ();
 					}
 				}
-			console.log ("checkForUpdates: " + theList.length + " files in the list.");
+			console.log ("checkForUpdates: " + theList.length + " files in " + urlIndex);
 			considerFile (0);
 			}
 		});
@@ -177,8 +178,25 @@ function checkForUpdates (baseUrl, callback) {
 function productNameVersion () {
 	return (myProductName + " v" + myVersion);
 	}
+function getAppModDate (callback) { //8/22/15 by DW
+	fs.exists (fnameApp, function (flExists) {
+		if (flExists) {
+			fs.stat (fnameApp, function (err, stats) {
+				if (err) {
+					callback (undefined);
+					}
+				else {
+					callback (new Date (stats.mtime).toString ());
+					}
+				});
+			}
+		else {
+			callback (undefined);
+			}
+		});
+	}
 function everyMinute () {
-	console.log (productNameVersion () + ": " + new Date ().toLocaleTimeString () + "\n");
+	console.log ("\n" + productNameVersion () + ": " + new Date ().toLocaleTimeString ());
 	readStats (statsfilename, stats, function () {
 		stats.ctChecks++;
 		stats.whenLastCheck = new Date ();
@@ -187,14 +205,32 @@ function everyMinute () {
 			});
 		});
 	}
-function startup () {
-	readStats (statsfilename, stats, function () {
-		stats.ctStarts++;
-		stats.whenLastStart = new Date ();
-		writeStats (statsfilename, stats);
-		everyMinute ();
-		setInterval (everyMinute, 60000); 
+function everySecond () {
+	if (!flScheduledEveryMinute) { //8/22/15 by DW
+		if (new Date ().getSeconds () == 0) {
+			setInterval (everyMinute, 60000); 
+			flScheduledEveryMinute = true;
+			everyMinute (); //it's the top of the minute, we have to do one now
+			}
+		}
+	getAppModDate (function (theModDate) { //8/22/15 by DW -- quit if the app changed
+		if (theModDate != origAppModDate) {
+			console.log ("\neverySecond: " + fnameApp + " has been updated. " + myProductName + " is quitting now.");
+			process.exit (0);
+			}
 		});
 	}
-
+function startup () {
+	console.log ("\n" + productNameVersion () + " launched at " + new Date ().toLocaleTimeString ());
+	readStats (statsfilename, stats, function () {
+		getAppModDate (function (appModDate) { //set origAppModDate -- 8/22/15 by DW
+			origAppModDate = appModDate;
+			stats.ctStarts++;
+			stats.whenLastStart = new Date ();
+			writeStats (statsfilename, stats);
+			setInterval (everySecond, 1000); 
+			everyMinute ();
+			});
+		});
+	}
 startup ();
