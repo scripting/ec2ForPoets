@@ -1,7 +1,10 @@
-var myVersion = "0.46e", myProductName = "syncHttp"; 
+var myVersion = "0.47g", myProductName = "syncHttp"; 
 
-var basefolder = "/home/ubuntu/"; //on the target machine, all folders are siblings of the ec2ForPoets folder
-var baseUrl = "http://demo.forpoets.org/distribution/";
+var config = {
+	baseFolder: "/home/ubuntu/", //on the target machine
+	baseUrl: "http://demo.forpoets.org/distribution/"
+	};
+var fnameConfig = "config.json"; //8/23/15 by DW
 
 var stats = {
 	ctStarts: 0, whenLastStart: new Date (0),
@@ -62,6 +65,17 @@ function readStats (f, stats, callback) {
 			});
 		});
 	}
+function readConfig (callback) { //8/23/15 by DW
+	fs.readFile (fnameConfig, function (err, data) {
+		if (!err) {
+			var storedConfig = JSON.parse (data.toString ());
+			for (var x in storedConfig) {
+				config [x] = storedConfig [x];
+				}
+			}
+		callback ();
+		});
+	}
 function fsSureFilePath (path, callback) { 
 	var splits = path.split ("/");
 	path = ""; //1/8/15 by DW
@@ -112,7 +126,7 @@ function downloadFile (relpath, f, whenModified, callback) {
 	stats.ctDownloads++;
 	stats.whenLastDownload = new Date ();
 	writeStats (statsfilename, stats);
-	request (baseUrl + relpath, function (err, response, filetext) {
+	request (config.baseUrl + relpath, function (err, response, filetext) {
 		if (!err && response.statusCode == 200) {
 			fs.writeFile (f, filetext, function (err) {
 				if (err != null) {
@@ -141,7 +155,7 @@ function checkForUpdates (baseUrl, callback) {
 			var theList = JSON.parse (jsontext);
 			function considerFile (ixfile) {
 				if (ixfile < theList.length) {
-					var obj = theList [ixfile], relfilepath = obj.path, f = basefolder + relfilepath;
+					var obj = theList [ixfile], relfilepath = obj.path, f = config.baseFolder + relfilepath;
 					fsSureFilePath (f, function () {
 						fs.exists (f, function (flExists) {
 							if (flExists) {
@@ -201,7 +215,7 @@ function everyMinute () {
 		stats.ctChecks++;
 		stats.whenLastCheck = new Date ();
 		writeStats (statsfilename, stats);
-		checkForUpdates (baseUrl, function () {
+		checkForUpdates (config.baseUrl, function () {
 			});
 		});
 	}
@@ -222,14 +236,17 @@ function everySecond () {
 	}
 function startup () {
 	console.log ("\n" + productNameVersion () + " launched at " + new Date ().toLocaleTimeString ());
-	readStats (statsfilename, stats, function () {
-		getAppModDate (function (appModDate) { //set origAppModDate -- 8/22/15 by DW
-			origAppModDate = appModDate;
-			stats.ctStarts++;
-			stats.whenLastStart = new Date ();
-			writeStats (statsfilename, stats);
-			setInterval (everySecond, 1000); 
-			everyMinute ();
+	readConfig (function () {
+		console.log ("\nstartup: config == " + utils.jsonStringify (config));
+		readStats (statsfilename, stats, function () {
+			getAppModDate (function (appModDate) { //set origAppModDate -- 8/22/15 by DW
+				origAppModDate = appModDate;
+				stats.ctStarts++;
+				stats.whenLastStart = new Date ();
+				writeStats (statsfilename, stats);
+				setInterval (everySecond, 1000); 
+				everyMinute ();
+				});
 			});
 		});
 	}
